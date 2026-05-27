@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import * as echarts from "echarts/core";
 import { BarChart } from "echarts/charts";
 import { GridComponent, TooltipComponent } from "echarts/components";
@@ -37,6 +38,8 @@ export default function ProductsBarChart({
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
+  const router = useRouter();
+  const params = useSearchParams();
   const [items, setItems] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(false);
   const containerClassName = "relative -mt-2 h-full w-full min-h-[240px]";
@@ -92,6 +95,29 @@ export default function ProductsBarChart({
       chartRef.current = null;
     };
   }, []);
+
+  const handleBarClick = useCallback(
+    (name?: string) => {
+      if (!name) return;
+      const sp = new URLSearchParams(params.toString());
+      if (filters.produto === name) sp.delete("produto");
+      else sp.set("produto", name);
+      router.push(`/?${sp.toString()}`);
+    },
+    [filters.produto, params, router],
+  );
+
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart) return;
+    const onClick = (event: { name?: string }) => {
+      handleBarClick(event.name);
+    };
+    chart.on("click", onClick);
+    return () => {
+      chart.off("click", onClick);
+    };
+  }, [handleBarClick]);
 
   useEffect(() => {
     const chart = chartRef.current;

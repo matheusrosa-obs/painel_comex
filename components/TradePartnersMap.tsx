@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import * as echarts from "echarts/core";
 import { GeoComponent, TooltipComponent } from "echarts/components";
 import { ScatterChart } from "echarts/charts";
@@ -203,6 +204,8 @@ function scaleBubble(value: number, maxValue: number) {
 export default function TradePartnersMap({ tipo, filters }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
+  const router = useRouter();
+  const params = useSearchParams();
   const centroidRef = useRef<Map<string, Centroid> | null>(null);
   const mapRef = useRef<GeoJSON | null>(null);
   const [items, setItems] = useState<PartnerItem[]>([]);
@@ -279,6 +282,29 @@ export default function TradePartnersMap({ tipo, filters }: Props) {
       chartRef.current = null;
     };
   }, []);
+
+  const handleCountryClick = useCallback(
+    (name?: string) => {
+      if (!name) return;
+      const sp = new URLSearchParams(params.toString());
+      if (filters.pais === name) sp.delete("pais");
+      else sp.set("pais", name);
+      router.push(`/?${sp.toString()}`);
+    },
+    [filters.pais, params, router],
+  );
+
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart) return;
+    const onClick = (event: { name?: string }) => {
+      handleCountryClick(event.name);
+    };
+    chart.on("click", onClick);
+    return () => {
+      chart.off("click", onClick);
+    };
+  }, [handleCountryClick]);
 
   useEffect(() => {
     const chart = chartRef.current;
