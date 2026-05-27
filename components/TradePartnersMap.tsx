@@ -94,7 +94,7 @@ type GeoFeature = {
   geometry?: { type?: string; coordinates?: number[][][] | number[][][][] };
 };
 
-type GeoJSON = { type: string; features: GeoFeature[] };
+type GeoJSON = { type: "FeatureCollection"; features: GeoFeature[] };
 
 type Centroid = [number, number];
 
