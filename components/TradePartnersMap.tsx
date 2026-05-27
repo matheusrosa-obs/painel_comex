@@ -10,14 +10,14 @@ import { formatFobUSD } from "@/lib/format";
 
 echarts.use([GeoComponent, TooltipComponent, ScatterChart, CanvasRenderer]);
 
-type PartnerItem = { label: string; value: number };
+type PartnerItem = { label: string; value: number; iso3?: string | null };
 
 type ClientFilters = {
   periodos?: string[];
   regioes?: string[];
   pais?: string;
   setor?: string;
-  sh4?: string;
+  produto?: string;
 };
 
 type Props = {
@@ -65,6 +65,29 @@ const NAME_ALIASES: Record<string, string> = {
   "México": "Mexico",
 };
 
+const ISO3_ALIASES: Record<string, string> = {
+  BRA: "Brazil",
+  USA: "United States of America",
+  CHN: "China",
+  RUS: "Russia",
+  DEU: "Germany",
+  ESP: "Spain",
+  ITA: "Italy",
+  JPN: "Japan",
+  KOR: "South Korea",
+  MEX: "Mexico",
+  ARG: "Argentina",
+  CHL: "Chile",
+  PRY: "Paraguay",
+  URY: "Uruguay",
+  GBR: "United Kingdom",
+  NLD: "Netherlands",
+  ZAF: "South Africa",
+  ARE: "United Arab Emirates",
+  VNM: "Vietnam",
+  CZE: "Czech Republic",
+};
+
 type GeoFeature = {
   properties?: { name?: string };
   geometry?: { type?: string; coordinates?: number[][][] | number[][][][] };
@@ -76,6 +99,12 @@ type Centroid = [number, number];
 
 function normalizeName(name: string) {
   return NAME_ALIASES[name] ?? name;
+}
+
+function normalizeIso3(iso3: string | null | undefined) {
+  if (!iso3) return null;
+  const key = iso3.trim().toUpperCase();
+  return ISO3_ALIASES[key] ?? null;
 }
 
 function normalizeKey(name: string) {
@@ -191,7 +220,7 @@ export default function TradePartnersMap({ tipo, filters }: Props) {
     }
     if (filters.pais) params.set("pais", filters.pais);
     if (filters.setor) params.set("setor", filters.setor);
-    if (filters.sh4) params.set("sh4", filters.sh4);
+    if (filters.produto) params.set("produto", filters.produto);
     return params.toString();
   }, [
     tipo,
@@ -199,7 +228,7 @@ export default function TradePartnersMap({ tipo, filters }: Props) {
     filters.regioes,
     filters.pais,
     filters.setor,
-    filters.sh4,
+    filters.produto,
   ]);
 
   useEffect(() => {
@@ -271,7 +300,8 @@ export default function TradePartnersMap({ tipo, filters }: Props) {
 
     for (const it of items) {
       if (ANTARCTICA_NAMES.has(it.label)) continue;
-      const name = normalizeName(it.label);
+      const isoName = normalizeIso3(it.iso3);
+      const name = normalizeName(isoName ?? it.label);
       const key = normalizeKey(name);
       const coords = centroidRef.current?.get(key);
       if (!coords) continue;

@@ -17,7 +17,7 @@ type ClientFilters = {
   regioes?: string[];
   pais?: string;
   setor?: string;
-  sh4?: string;
+  produto?: string;
 };
 
 type Props = {
@@ -52,7 +52,7 @@ export default function ProductsBarChart({
     }
     if (filters.pais) params.set("pais", filters.pais);
     if (filters.setor) params.set("setor", filters.setor);
-    if (filters.sh4) params.set("sh4", filters.sh4);
+    if (filters.produto) params.set("produto", filters.produto);
     return params.toString();
   }, [
     tipo,
@@ -60,7 +60,7 @@ export default function ProductsBarChart({
     filters.regioes,
     filters.pais,
     filters.setor,
-    filters.sh4,
+    filters.produto,
   ]);
 
   useEffect(() => {

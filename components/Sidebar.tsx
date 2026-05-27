@@ -13,7 +13,7 @@ type FilterOptions = {
   municipiosByVp: Record<string, string[]>;
   paises: string[];
   setores: string[];
-  produtos: { cd_sh4: string; nm_produto: string; setor: string | null }[];
+  produtos: { nm_produto: string; setor: string | null }[];
 };
 
 const EMPTY_OPTIONS: FilterOptions = {
@@ -35,7 +35,7 @@ type SidebarProps = {
     regioes: string[];
     pais: string;
     setor: string;
-    sh4: string;
+    produto: string;
   };
 };
 
@@ -49,7 +49,7 @@ export default function Sidebar({ current }: SidebarProps) {
   const [regioes, setRegioes] = useState<string[]>(current.regioes);
   const [pais, setPais] = useState(current.pais);
   const [setor, setSetor] = useState(current.setor);
-  const [sh4, setSh4] = useState(current.sh4);
+  const [produto, setProduto] = useState(current.produto);
 
   useEffect(() => {
     setTipo(current.tipo);
@@ -57,14 +57,14 @@ export default function Sidebar({ current }: SidebarProps) {
     setRegioes(current.regioes);
     setPais(current.pais);
     setSetor(current.setor);
-    setSh4(current.sh4);
+    setProduto(current.produto);
   }, [
     current.tipo,
     current.periodos,
     current.regioes,
     current.pais,
     current.setor,
-    current.sh4,
+    current.produto,
   ]);
 
   useEffect(() => {
@@ -87,11 +87,11 @@ export default function Sidebar({ current }: SidebarProps) {
 
   function handleSetorChange(next: string) {
     setSetor(next);
-    if (sh4 && next) {
+    if (produto && next) {
       const stillValid = opts.produtos.some(
-        (p) => p.cd_sh4 === sh4 && p.setor === next,
+        (p) => p.nm_produto === produto && p.setor === next,
       );
-      if (!stillValid) setSh4("");
+      if (!stillValid) setProduto("");
     }
   }
 
@@ -101,7 +101,7 @@ export default function Sidebar({ current }: SidebarProps) {
     regioes?: string[];
     pais?: string;
     setor?: string;
-    sh4?: string;
+    produto?: string;
   }) {
     const sp = new URLSearchParams(params.toString());
     const merged = {
@@ -110,7 +110,7 @@ export default function Sidebar({ current }: SidebarProps) {
       regioes,
       pais,
       setor,
-      sh4,
+      produto,
       ...next,
     };
     if (!merged.periodos || merged.periodos.length === 0) {
@@ -121,7 +121,7 @@ export default function Sidebar({ current }: SidebarProps) {
       tipo: merged.tipo,
       pais: merged.pais,
       setor: merged.setor,
-      sh4: merged.sh4,
+      produto: merged.produto,
     };
     for (const [k, v] of Object.entries(scalars)) {
       if (v && v !== "all" && v !== "") sp.set(k, v);
@@ -139,7 +139,7 @@ export default function Sidebar({ current }: SidebarProps) {
     setRegioes([]);
     setPais("");
     setSetor("");
-    setSh4("");
+    setProduto("");
     router.push("/");
   }
 
@@ -220,13 +220,13 @@ export default function Sidebar({ current }: SidebarProps) {
 
           <FilterSelect
             label="Produto:"
-            value={sh4}
-            onChange={setSh4}
+            value={produto}
+            onChange={setProduto}
             options={[
               { value: "", label: "Todos os produtos" },
               ...produtosForSetor.map((p) => ({
-                value: p.cd_sh4,
-                label: `${p.cd_sh4} - ${p.nm_produto}`,
+                value: p.nm_produto,
+                label: p.nm_produto,
               })),
             ]}
           />

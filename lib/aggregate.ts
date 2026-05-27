@@ -41,15 +41,22 @@ export function sectorShare(rows: Row[], tipo: "exp" | "imp", topN = 8) {
 }
 
 export function topCountries(rows: Row[], tipo: "exp" | "imp", topN?: number) {
-  const agg = new Map<string, number>();
+  const agg = new Map<string, { label: string; value: number; iso3: string | null }>();
   for (const r of rows) {
     if (tipoFromCarga(r.tp_carga) !== tipo) continue;
-    const key = r.ds_pais || "Não informado";
-    agg.set(key, (agg.get(key) ?? 0) + (Number(r.vl_fob) || 0));
+    const label = r.nm_pais || r.ds_pais || "Não informado";
+    const iso3 = r.cd_pais_iso3 ? r.cd_pais_iso3.trim() : null;
+    const key = iso3 || label;
+    const current = agg.get(key);
+    const value = (Number(r.vl_fob) || 0) + (current?.value ?? 0);
+    agg.set(key, {
+      label: current?.label ?? label,
+      value,
+      iso3: current?.iso3 ?? iso3,
+    });
   }
-  const all = Array.from(agg.entries())
-    .filter(([, value]) => value > 0)
-    .map(([label, value]) => ({ label, value }))
+  const all = Array.from(agg.values())
+    .filter((entry) => entry.value > 0)
     .sort((a, b) => b.value - a.value);
   if (typeof topN === "number" && topN > 0) return all.slice(0, topN);
   return all;
@@ -59,7 +66,7 @@ export function topProducts(rows: Row[], tipo: "exp" | "imp", topN = 10) {
   const agg = new Map<string, number>();
   for (const r of rows) {
     if (tipoFromCarga(r.tp_carga) !== tipo) continue;
-    const key = r.nm_produto || r.cd_sh4 || "Não informado";
+    const key = r.nm_produto || "Não informado";
     agg.set(key, (agg.get(key) ?? 0) + (Number(r.vl_fob) || 0));
   }
   return topNBy(agg, topN);

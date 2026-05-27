@@ -8,6 +8,8 @@ export type NcmRow = {
   nr_mes: number;
   tp_carga: string;
   cd_pais: string;
+  cd_pais_iso3: string | null;
+  nm_pais: string;
   ds_pais: string;
   vl_fob: number;
   nm_produto: string | null;
@@ -65,16 +67,11 @@ export type Filters = {
   regioes?: string[];
   pais?: string;
   setor?: string;
-  sh4?: string;
+  produto?: string;
 };
 
 const VP_PREFIX = "vp:";
 const MUN_PREFIX = "mun:";
-
-export function normSh4(v: unknown): string {
-  if (v === null || v === undefined || v === "") return "";
-  return String(v).padStart(4, "0");
-}
 
 export function isRegionalized(f: Filters): boolean {
   return Boolean(f.regioes && f.regioes.length > 0);
@@ -132,9 +129,9 @@ export function applyFilters<T extends MunRow | NcmRow>(rows: T[], f: Filters): 
       const mun = mr.nm_municipio ?? "";
       if (!region.vps.has(vp) && !region.municipios.has(mun)) return false;
     }
-    if (f.pais && r.ds_pais !== f.pais) return false;
+    if (f.pais && r.nm_pais !== f.pais && r.ds_pais !== f.pais) return false;
     if (f.setor && r.nm_sc_competitiva !== f.setor) return false;
-    if (f.sh4 && normSh4(r.cd_sh4) !== f.sh4) return false;
+    if (f.produto && r.nm_produto !== f.produto) return false;
     return true;
   });
 }
@@ -164,12 +161,12 @@ export function parseFilters(url: URL): Filters {
         .map((s) => s.trim())
         .filter(Boolean)
     : undefined;
-  const sh4Raw = sp.get("sh4");
+  const produtoRaw = sp.get("produto");
   return {
     periodos,
     regioes,
     pais: sp.get("pais") ?? undefined,
     setor: sp.get("setor") ?? undefined,
-    sh4: sh4Raw ? normSh4(sh4Raw) : undefined,
+    produto: produtoRaw ?? undefined,
   };
 }

@@ -2,7 +2,7 @@ import Sidebar from "@/components/Sidebar";
 import { KpiCard } from "@/components/KpiCard";
 import { DollarIcon, ExportIcon, ImportIcon } from "@/components/Icons";
 import DashboardGrid from "@/components/DashboardGrid";
-import { loadFiltered, normSh4, type Filters } from "@/lib/dataset";
+import { loadFiltered, type Filters } from "@/lib/dataset";
 import { kpis, sectorShare } from "@/lib/aggregate";
 import { formatFobUSD } from "@/lib/format";
 
@@ -42,15 +42,14 @@ export default async function Home({
   const regioes = parseRegioes(pickString(params.regioes));
   const pais = pickString(params.pais);
   const setor = pickString(params.setor);
-  const sh4Raw = pickString(params.sh4);
-  const sh4 = sh4Raw ? normSh4(sh4Raw) : "";
+  const produto = pickString(params.produto);
 
   const filters: Filters = {
     periodos: periodos.length ? periodos : undefined,
     regioes: regioes.length ? regioes : undefined,
     pais: pais || undefined,
     setor: setor || undefined,
-    sh4: sh4 || undefined,
+    produto: produto || undefined,
   };
 
   const rows = await loadFiltered(filters);
@@ -68,7 +67,7 @@ export default async function Home({
           regioes,
           pais,
           setor,
-          sh4,
+          produto,
         }}
       />
 

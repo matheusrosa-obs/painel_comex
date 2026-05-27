@@ -12,7 +12,7 @@ type ClientFilters = {
   regioes?: string[];
   pais?: string;
   setor?: string;
-  sh4?: string;
+  produto?: string;
 };
 
 type Props = {
@@ -37,7 +37,7 @@ export default function DashboardGrid({
       const sp = new URLSearchParams(params.toString());
       if (label) sp.set("setor", label);
       else sp.delete("setor");
-      sp.delete("sh4");
+      sp.delete("produto");
       router.push(`/?${sp.toString()}`);
     },
     [params, router],

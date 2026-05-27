@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { loadMun, loadNcm, normSh4 } from "@/lib/dataset";
+import { loadMun, loadNcm } from "@/lib/dataset";
 import { distinctValues } from "@/lib/aggregate";
 
 export const runtime = "nodejs";
@@ -41,18 +41,17 @@ export async function GET() {
 
   const produtosMap = new Map<string, { nm_produto: string; setor: string | null }>();
   for (const r of ncm) {
-    const sh4 = normSh4(r.cd_sh4);
-    if (!sh4 || !r.nm_produto) continue;
-    if (!produtosMap.has(sh4)) {
-      produtosMap.set(sh4, {
+    if (!r.nm_produto) continue;
+    if (!produtosMap.has(r.nm_produto)) {
+      produtosMap.set(r.nm_produto, {
         nm_produto: r.nm_produto,
         setor: r.nm_sc_competitiva ?? null,
       });
     }
   }
   const produtos = Array.from(produtosMap.entries())
-    .map(([cd_sh4, info]) => ({ cd_sh4, nm_produto: info.nm_produto, setor: info.setor }))
-    .sort((a, b) => a.cd_sh4.localeCompare(b.cd_sh4));
+    .map(([, info]) => ({ nm_produto: info.nm_produto, setor: info.setor }))
+    .sort((a, b) => a.nm_produto.localeCompare(b.nm_produto, "pt-BR"));
 
   return NextResponse.json({
     anos,

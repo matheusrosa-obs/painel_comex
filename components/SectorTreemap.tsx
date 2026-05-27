@@ -68,22 +68,12 @@ export default function SectorTreemap({
     const maxValue = Math.max(...values);
     const minValue = Math.min(...values);
     const data = items.map((it) => {
-      const isTop = it.value === maxValue;
-      const isSelected = Boolean(selectedLabel && it.label === selectedLabel);
       return {
         name: it.label,
         value: it.value,
         share: it.share,
         itemStyle: {
-          color: blueStepForValue(it.value, minValue, maxValue, true),
-          borderColor: isSelected
-            ? "#31EBFF"
-            : isTop
-              ? "#EAF3FF"
-              : "#1E1E29",
-          borderWidth: isSelected ? 3 : isTop ? 2 : 0,
-          shadowBlur: isSelected ? 10 : 0,
-          shadowColor: isSelected ? "rgba(49,235,255,0.35)" : "transparent",
+          color: blueStepForValue(it.value, minValue, maxValue, true)
         },
       };
     });
