@@ -27,7 +27,7 @@ type Props = {
 
 // Bubble size tuning knobs.
 const BUBBLE_SIZE_MIN = 8;
-const BUBBLE_SIZE_MAX = 60;
+const BUBBLE_SIZE_MAX = 100;
 const BUBBLE_SIZE_EXPONENT = 0.9;
 
 const ANTARCTICA_NAMES = new Set([
@@ -38,16 +38,21 @@ const ANTARCTICA_NAMES = new Set([
 ]);
 
 const NAME_ALIASES: Record<string, string> = {
+  "Brasil": "Brazil",
   "Estados Unidos": "United States of America",
+  "Estados Unidos da América": "United States of America",
   "Rússia": "Russia",
+  "Rússia (Federação)": "Russia",
   "Reino Unido": "United Kingdom",
   "Coreia do Sul": "South Korea",
   "Coreia, República da": "South Korea",
   "Vietnã": "Vietnam",
   "República Tcheca": "Czech Republic",
+  "República Checa": "Czech Republic",
   "Emirados Árabes Unidos": "United Arab Emirates",
   "África do Sul": "South Africa",
   "Países Baixos": "Netherlands",
+  "Holanda": "Netherlands",
   "Alemanha": "Germany",
   "Espanha": "Spain",
   "Itália": "Italy",
@@ -71,6 +76,15 @@ type Centroid = [number, number];
 
 function normalizeName(name: string) {
   return NAME_ALIASES[name] ?? name;
+}
+
+function normalizeKey(name: string) {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
 
 function polygonCentroid(points: number[][]) {
@@ -142,7 +156,7 @@ function computeCentroids(geoJson: GeoJSON | null) {
       }
     }
 
-    if (best) out.set(name, best);
+    if (best) out.set(normalizeKey(name), best);
   }
 
   return out;
@@ -258,7 +272,8 @@ export default function TradePartnersMap({ tipo, filters }: Props) {
     for (const it of items) {
       if (ANTARCTICA_NAMES.has(it.label)) continue;
       const name = normalizeName(it.label);
-      const coords = centroidRef.current?.get(name);
+      const key = normalizeKey(name);
+      const coords = centroidRef.current?.get(key);
       if (!coords) continue;
       data.push({
         name: it.label,
