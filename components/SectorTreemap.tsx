@@ -6,22 +6,11 @@ import { TreemapChart } from "echarts/charts";
 import { TooltipComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 import { formatFobUSD } from "@/lib/format";
+import { BLUE_STEPS, blueStepForValue } from "@/lib/chartColors";
 
 echarts.use([TreemapChart, TooltipComponent, CanvasRenderer]);
 
-type Item = { label: string; value: number; share: number };
-
-const BLUE_STEPS = [
-  "#2A4F8B",
-  "#355B9A",
-  "#4067A9",
-  "#4B73B8",
-  "#567FC7",
-  "#618BD6",
-  "#6C97E5",
-  "#77A3F4",
-  "#84B0FF",
-];
+export type SectorItem = { label: string; value: number; share: number };
 
 type TooltipParams = {
   name: string;
@@ -29,7 +18,15 @@ type TooltipParams = {
   data?: { share?: number };
 };
 
-export default function SectorTreemap({ items }: { items: Item[] }) {
+export default function SectorTreemap({
+  items,
+  selectedLabel,
+  onSelect,
+}: {
+  items: SectorItem[];
+  selectedLabel?: string;
+  onSelect?: (label: string) => void;
+}) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
 
@@ -48,29 +45,45 @@ export default function SectorTreemap({ items }: { items: Item[] }) {
 
   useEffect(() => {
     const chart = chartRef.current;
+    if (!chart || !onSelect) return;
+    const handleClick = (params: { name?: string }) => {
+      if (!params.name) return;
+      const next = params.name === selectedLabel ? "" : params.name;
+      onSelect(next);
+    };
+    chart.on("click", handleClick);
+    return () => {
+      chart.off("click", handleClick);
+    };
+  }, [onSelect, selectedLabel]);
+
+  useEffect(() => {
+    const chart = chartRef.current;
     if (!chart) return;
+    if (!items.length) {
+      chart.clear();
+      return;
+    }
     const values = items.map((it) => it.value);
     const maxValue = Math.max(...values);
     const minValue = Math.min(...values);
-    const colorForValue = (value: number) => {
-      if (maxValue === minValue) return BLUE_STEPS[BLUE_STEPS.length - 1];
-      const t = (value - minValue) / (maxValue - minValue);
-      const idx = Math.min(
-        BLUE_STEPS.length - 1,
-        Math.floor(t * BLUE_STEPS.length),
-      );
-      return BLUE_STEPS[BLUE_STEPS.length - 1 - idx];
-    };
     const data = items.map((it) => {
       const isTop = it.value === maxValue;
+      const isSelected = Boolean(selectedLabel && it.label === selectedLabel);
       return {
         name: it.label,
         value: it.value,
         share: it.share,
         itemStyle: {
-          color: isTop ? BLUE_STEPS[0] : colorForValue(it.value),
-          borderColor: isTop ? "#EAF3FF" : "#1E1E29",
-          borderWidth: isTop ? 2 : 0,
+          color: blueStepForValue(it.value, minValue, maxValue, true),
+          borderColor: isSelected
+            ? "#31EBFF"
+            : isTop
+              ? "#EAF3FF"
+              : "#1E1E29",
+          borderWidth: isSelected ? 3 : isTop ? 2 : 0,
+          shadowBlur: isSelected ? 10 : 0,
+          shadowColor: isSelected ? "rgba(49,235,255,0.35)" : "transparent",
         },
       };
     });
@@ -108,6 +121,7 @@ export default function SectorTreemap({ items }: { items: Item[] }) {
             roam: false,
             nodeClick: false,
             breadcrumb: { show: false },
+            cursor: onSelect ? "pointer" : "default",
             label: {
               show: true,
               color: "#ffffff",
@@ -127,7 +141,7 @@ export default function SectorTreemap({ items }: { items: Item[] }) {
       },
       { notMerge: true },
     );
-  }, [items]);
+  }, [items, onSelect, selectedLabel]);
 
   if (!items.length) {
     return (

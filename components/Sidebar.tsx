@@ -52,6 +52,22 @@ export default function Sidebar({ current }: SidebarProps) {
   const [sh4, setSh4] = useState(current.sh4);
 
   useEffect(() => {
+    setTipo(current.tipo);
+    setPeriodos(current.periodos);
+    setRegioes(current.regioes);
+    setPais(current.pais);
+    setSetor(current.setor);
+    setSh4(current.sh4);
+  }, [
+    current.tipo,
+    current.periodos,
+    current.regioes,
+    current.pais,
+    current.setor,
+    current.sh4,
+  ]);
+
+  useEffect(() => {
     let alive = true;
     fetch("/api/filters")
       .then((r) => r.json())

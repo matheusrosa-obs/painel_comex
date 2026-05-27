@@ -40,14 +40,19 @@ export function sectorShare(rows: Row[], tipo: "exp" | "imp", topN = 8) {
   return { items, total };
 }
 
-export function topCountries(rows: Row[], tipo: "exp" | "imp", topN = 10) {
+export function topCountries(rows: Row[], tipo: "exp" | "imp", topN?: number) {
   const agg = new Map<string, number>();
   for (const r of rows) {
     if (tipoFromCarga(r.tp_carga) !== tipo) continue;
     const key = r.ds_pais || "Não informado";
     agg.set(key, (agg.get(key) ?? 0) + (Number(r.vl_fob) || 0));
   }
-  return topNBy(agg, topN);
+  const all = Array.from(agg.entries())
+    .filter(([, value]) => value > 0)
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value);
+  if (typeof topN === "number" && topN > 0) return all.slice(0, topN);
+  return all;
 }
 
 export function topProducts(rows: Row[], tipo: "exp" | "imp", topN = 10) {

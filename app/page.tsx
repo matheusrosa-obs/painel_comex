@@ -1,8 +1,7 @@
 import Sidebar from "@/components/Sidebar";
 import { KpiCard } from "@/components/KpiCard";
-import { Panel } from "@/components/Panel";
 import { DollarIcon, ExportIcon, ImportIcon } from "@/components/Icons";
-import SectorTreemap from "@/components/SectorTreemap";
+import DashboardGrid from "@/components/DashboardGrid";
 import { loadFiltered, normSh4, type Filters } from "@/lib/dataset";
 import { kpis, sectorShare } from "@/lib/aggregate";
 import { formatFobUSD } from "@/lib/format";
@@ -93,23 +92,12 @@ export default async function Home({
           />
         </header>
 
-        <div className="grid flex-1 grid-cols-2 grid-rows-2 gap-5">
-          <Panel
-            title={`Participação por setor econômico nas ${tipoLabel}`}
-            fill
-          >
-            <SectorTreemap items={setores.items} />
-          </Panel>
-          <Panel title="Principais parceiros comerciais" />
-          <Panel
-            title={
-              tipo === "exp"
-                ? "Principais produtos exportados"
-                : "Principais produtos importados"
-            }
-          />
-          <Panel title="Evolução da balança comercial" />
-        </div>
+        <DashboardGrid
+          tipo={tipo}
+          tipoLabel={tipoLabel}
+          treemapItems={setores.items}
+          filters={filters}
+        />
       </main>
     </div>
   );
