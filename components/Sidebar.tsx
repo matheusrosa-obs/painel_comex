@@ -154,7 +154,7 @@ export default function Sidebar({ current }: SidebarProps) {
                 setTipo("exp");
                 apply({ tipo: "exp" });
               }}
-              className={`h-9 rounded-md text-sm font-medium transition ${
+              className={`h-9 text-sm font-medium transition ${
                 tipo === "exp"
                   ? "bg-[var(--accent)] text-[#0b1416]"
                   : "bg-[var(--surface)] text-[var(--foreground)] hover:bg-[#3a3a45]"
@@ -168,7 +168,7 @@ export default function Sidebar({ current }: SidebarProps) {
                 setTipo("imp");
                 apply({ tipo: "imp" });
               }}
-              className={`h-9 rounded-md text-sm font-medium transition ${
+              className={`h-9 text-sm font-medium transition ${
                 tipo === "imp"
                   ? "bg-[var(--accent)] text-[#0b1416]"
                   : "bg-[var(--surface)] text-[var(--foreground)] hover:bg-[#3a3a45]"
@@ -235,14 +235,14 @@ export default function Sidebar({ current }: SidebarProps) {
             <button
               type="button"
               onClick={() => apply()}
-              className="h-9 rounded-md bg-[var(--accent)] text-sm font-medium text-[#0b1416] transition hover:brightness-110"
+              className="h-9 bg-[var(--accent)] text-sm font-medium text-[#0b1416] transition hover:brightness-110"
             >
               Aplicar filtros
             </button>
             <button
               type="button"
               onClick={clearAll}
-              className="h-9 rounded-md bg-[var(--surface)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[#3a3a45]"
+              className="h-9 bg-[var(--surface)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[#3a3a45]"
             >
               Limpar
             </button>

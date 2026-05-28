@@ -72,7 +72,7 @@ export default async function Home({
       />
 
       <main className="flex flex-1 flex-col gap-5 overflow-y-auto px-8 py-6">
-        <header className="flex gap-5">
+        <header className="flex justify-center gap-5">
           <KpiCard
             label="Exportações"
             value={formatFobUSD(k.exportacoes)}

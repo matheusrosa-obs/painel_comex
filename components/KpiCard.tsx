@@ -9,7 +9,7 @@ type Props = {
 
 export function KpiCard({ label, value, icon, negative }: Props) {
   return (
-    <div className="flex flex-1 flex-col gap-1 rounded-lg bg-[var(--surface)] px-5 py-3">
+    <div className="flex w-80 flex-col gap-1 rounded-lg bg-[var(--surface)] px-5 py-3">
       <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
         <span className="text-[var(--accent)]">{icon}</span>
         <span>{label}</span>
