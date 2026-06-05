@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../design_system_paineis_indicadores/components/index.css";
 
 :root {
   --background: #1e1e29;
@@ -39,4 +40,59 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #4a4a55;
+}
+
+/* ---------------------------------------------------------------------------
+   Sidebar (menu lateral) — composição do design system.
+   Só layout: largura, gaps e adaptação dos componentes obs-* à coluna estreita.
+   Cores/tipografia/radius vêm dos tokens --obs-* e classes .obs-*.
+--------------------------------------------------------------------------- */
+.obs-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 288px;
+  height: 100vh;
+  background: var(--obs-color-bg);
+  border-right: 1px solid var(--obs-color-subcontainer);
+}
+
+.obs-sidebar__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.obs-sidebar__inner {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--obs-space-4);
+  padding: var(--obs-space-4) var(--obs-space-5);
+}
+
+.obs-sidebar__footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--obs-space-4) var(--obs-space-5);
+}
+
+/* Componentes do DS preenchem a largura da coluna estreita do sidebar. */
+.obs-sidebar .obs-segmented-control {
+  width: 100%;
+}
+
+.obs-sidebar .obs-segmented-control__item {
+  flex: 1 1 0;
+  width: auto;
+}
+
+.obs-sidebar .obs-filter-dropdown {
+  width: 100%;
+}
+
+.obs-sidebar .obs-sidebar-button {
+  width: 100%;
+  justify-content: center;
 }

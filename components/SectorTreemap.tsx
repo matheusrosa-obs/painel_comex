@@ -6,7 +6,7 @@ import { TreemapChart } from "echarts/charts";
 import { TooltipComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 import { formatFobUSD } from "@/lib/format";
-import { BLUE_STEPS, blueStepForValue } from "@/lib/chartColors";
+import { blueStepForValue, sectorColorForLabel } from "@/lib/chartColors";
 
 echarts.use([TreemapChart, TooltipComponent, CanvasRenderer]);
 
@@ -68,12 +68,13 @@ export default function SectorTreemap({
     const maxValue = Math.max(...values);
     const minValue = Math.min(...values);
     const data = items.map((it) => {
+      const sectorColor = sectorColorForLabel(it.label);
       return {
         name: it.label,
         value: it.value,
         share: it.share,
         itemStyle: {
-          color: blueStepForValue(it.value, minValue, maxValue, true)
+          color: sectorColor ?? blueStepForValue(it.value, minValue, maxValue, true),
         },
       };
     });

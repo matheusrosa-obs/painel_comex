@@ -6,12 +6,12 @@ import * as echarts from "echarts/core";
 import { BarChart } from "echarts/charts";
 import { GridComponent, TooltipComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
-import { BLUE_STEPS, blueStepForValue } from "@/lib/chartColors";
+import { blueStepForValue, sectorColorForLabel } from "@/lib/chartColors";
 import { formatFobUSD } from "@/lib/format";
 
 echarts.use([BarChart, GridComponent, TooltipComponent, CanvasRenderer]);
 
-type ProductItem = { label: string; value: number };
+type ProductItem = { label: string; value: number; sector?: string | null };
 
 type ClientFilters = {
   periodos?: string[];
@@ -132,13 +132,14 @@ export default function ProductsBarChart({
     const minValue = Math.min(...values);
     const data = items.map((it) => {
       const share = total ? it.value / total : 0;
+      const sectorColor = it.sector ? sectorColorForLabel(it.sector) : null;
       return {
         name: it.label,
         value: Number((share * 100).toFixed(2)),
         share,
         rawValue: it.value,
         itemStyle: {
-          color: blueStepForValue(it.value, minValue, maxValue, true),
+          color: sectorColor ?? blueStepForValue(it.value, minValue, maxValue, true),
         },
       };
     });
@@ -202,11 +203,6 @@ export default function ProductsBarChart({
             type: "bar",
             data,
             barWidth: 20,
-            emphasis: {
-              itemStyle: {
-                color: BLUE_STEPS[0],
-              },
-            },
           },
         ],
       },

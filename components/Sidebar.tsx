@@ -144,42 +144,40 @@ export default function Sidebar({ current }: SidebarProps) {
   }
 
   return (
-    <aside className="flex h-screen w-72 flex-col border-r border-[var(--border)] bg-[var(--background)]">
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="flex min-h-full flex-col justify-center gap-4 px-5 py-4">
-          <div className="flex flex-col gap-2">
+    <aside className="obs-sidebar">
+      <div className="obs-sidebar__scroll">
+        <div className="obs-sidebar__inner">
+          <div
+            className="obs-segmented-control"
+            role="group"
+            aria-label="Tipo de fluxo"
+          >
             <button
               type="button"
+              className="obs-segmented-control__item"
+              aria-pressed={tipo === "exp"}
               onClick={() => {
                 setTipo("exp");
                 apply({ tipo: "exp" });
               }}
-              className={`h-9 text-sm font-medium transition ${
-                tipo === "exp"
-                  ? "bg-[var(--accent)] text-[#0b1416]"
-                  : "bg-[var(--surface)] text-[var(--foreground)] hover:bg-[#3a3a45]"
-              }`}
             >
               Exportações
             </button>
             <button
               type="button"
+              className="obs-segmented-control__item"
+              aria-pressed={tipo === "imp"}
               onClick={() => {
                 setTipo("imp");
                 apply({ tipo: "imp" });
               }}
-              className={`h-9 text-sm font-medium transition ${
-                tipo === "imp"
-                  ? "bg-[var(--accent)] text-[#0b1416]"
-                  : "bg-[var(--surface)] text-[var(--foreground)] hover:bg-[#3a3a45]"
-              }`}
             >
               Importações
             </button>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <span className="text-xs text-[var(--muted)]">Seleção de data:</span>
+          <div className="obs-filter-field">
+            <span className="obs-filter-field__label">Seleção de data:</span>
             <DateTreePicker
               anos={opts.anos}
               mesesByAno={opts.mesesByAno}
@@ -188,8 +186,10 @@ export default function Sidebar({ current }: SidebarProps) {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <span className="text-xs text-[var(--muted)]">Vice-Presidência | Município:</span>
+          <div className="obs-filter-field">
+            <span className="obs-filter-field__label">
+              Vice-Presidência | Município:
+            </span>
             <RegionTreePicker
               vps={opts.vps}
               municipiosByVp={opts.municipiosByVp}
@@ -235,14 +235,14 @@ export default function Sidebar({ current }: SidebarProps) {
             <button
               type="button"
               onClick={() => apply()}
-              className="h-9 bg-[var(--accent)] text-sm font-medium text-[#0b1416] transition hover:brightness-110"
+              className="obs-sidebar-button obs-sidebar-button--selected"
             >
               Aplicar filtros
             </button>
             <button
               type="button"
               onClick={clearAll}
-              className="h-9 bg-[var(--surface)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[#3a3a45]"
+              className="obs-sidebar-button"
             >
               Limpar
             </button>
@@ -250,7 +250,7 @@ export default function Sidebar({ current }: SidebarProps) {
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center justify-center px-5 py-4">
+      <div className="obs-sidebar__footer">
         <Image
           src="/logo.png"
           alt="Observatório FIESC"
@@ -276,19 +276,41 @@ function FilterSelect({
   options: { value: string; label: string }[];
 }) {
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-xs text-[var(--muted)]">{label}</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-9 rounded-md border border-[var(--border)] bg-[var(--surface)] px-2 text-sm text-[var(--foreground)] focus:border-[var(--accent)] focus:outline-none"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value} className="bg-[var(--surface)]">
-            {o.label}
-          </option>
-        ))}
-      </select>
+    <label className="obs-filter-field">
+      <span className="obs-filter-field__label">{label}</span>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="obs-filter-dropdown pr-9 focus:border-[var(--obs-color-sky)] focus:outline-none"
+        >
+          {options.map((o) => (
+            <option
+              key={o.value}
+              value={o.value}
+              className="bg-[var(--obs-color-subcontainer)] text-[var(--obs-color-white)]"
+            >
+              {o.label}
+            </option>
+          ))}
+        </select>
+        <svg
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
+          width="12"
+          height="12"
+          viewBox="0 0 16 16"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M4 6l4 4 4-4"
+            stroke="var(--obs-color-white)"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
     </label>
   );
 }

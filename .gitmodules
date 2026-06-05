@@ -1,0 +1,3 @@
+[submodule "design_system_paineis_indicadores"]
+	path = design_system_paineis_indicadores
+	url = https://github.com/observatorio-fiesc/design_system_paineis_indicadores.git

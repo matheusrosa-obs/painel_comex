@@ -93,9 +93,9 @@ export default function TreePicker({
   }
 
   return (
-    <div className="flex flex-col rounded-md border border-[var(--border)] bg-[var(--surface)]">
+    <div className="flex flex-col rounded-[var(--obs-radius-sm)] border-[1.5px] border-[var(--obs-color-border)] bg-[var(--obs-color-subcontainer)]">
       {headerRow && (
-        <div className="border-b border-[var(--border)] px-2 py-1">
+        <div className="border-b border-[var(--obs-color-border)] px-2 py-1">
           {headerRow}
         </div>
       )}
@@ -109,7 +109,7 @@ export default function TreePicker({
                   type="button"
                   onClick={() => toggleExpanded(g.key)}
                   aria-label={open ? "Recolher" : "Expandir"}
-                  className="grid h-5 w-5 place-items-center text-[var(--muted)] hover:text-[var(--foreground)]"
+                  className="grid h-5 w-5 place-items-center text-[var(--obs-color-border)] hover:text-[var(--obs-color-white)]"
                 >
                   <Chevron open={open} />
                 </button>
@@ -154,20 +154,20 @@ export function TreeCheckbox({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-2 rounded px-1 py-0.5 text-left text-sm text-[var(--foreground)] hover:bg-[#3a3a45]"
+      className="flex w-full items-center gap-2 rounded px-1 py-0.5 text-left text-sm text-[var(--obs-color-white)] hover:bg-[var(--obs-color-container)]"
     >
       <span
         className={`grid h-4 w-4 shrink-0 place-items-center rounded border ${
           state === "unchecked"
-            ? "border-[#6b7280] bg-transparent"
-            : "border-[var(--accent)] bg-[var(--accent)]"
+            ? "border-[var(--obs-color-border)] bg-transparent"
+            : "border-[var(--obs-color-sky)] bg-[var(--obs-color-sky)]"
         }`}
       >
         {state === "checked" && (
           <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
             <path
               d="M3 8.5l3.2 3.2L13 4.5"
-              stroke="#0b1416"
+              stroke="var(--obs-color-bg)"
               strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -176,7 +176,12 @@ export function TreeCheckbox({
         )}
         {state === "indeterminate" && (
           <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
-            <path d="M3.5 8h9" stroke="#0b1416" strokeWidth="2.4" strokeLinecap="round" />
+            <path
+              d="M3.5 8h9"
+              stroke="var(--obs-color-bg)"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+            />
           </svg>
         )}
       </span>

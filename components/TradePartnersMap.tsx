@@ -4,12 +4,18 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as echarts from "echarts/core";
 import { GeoComponent, TooltipComponent } from "echarts/components";
-import { ScatterChart } from "echarts/charts";
+import { ScatterChart, EffectScatterChart } from "echarts/charts";
 import { CanvasRenderer } from "echarts/renderers";
-import { BLUE_STEPS, blueStepForValue } from "@/lib/chartColors";
+import { blueStepForValue } from "@/lib/chartColors";
 import { formatFobUSD } from "@/lib/format";
 
-echarts.use([GeoComponent, TooltipComponent, ScatterChart, CanvasRenderer]);
+echarts.use([
+  GeoComponent,
+  TooltipComponent,
+  ScatterChart,
+  EffectScatterChart,
+  CanvasRenderer,
+]);
 
 type PartnerItem = { label: string; value: number; iso3?: string | null };
 
@@ -28,8 +34,11 @@ type Props = {
 
 // Bubble size tuning knobs.
 const BUBBLE_SIZE_MIN = 8;
-const BUBBLE_SIZE_MAX = 100;
+const BUBBLE_SIZE_MAX = 80;
 const BUBBLE_SIZE_EXPONENT = 0.9;
+const ACCENT_BLUE = "#31ebff";
+const ACCENT_RGB = "49, 235, 255";
+const ACCENT_ALPHA_MIN = 0.3;
 
 const ANTARCTICA_NAMES = new Set([
   "Antarctica",
@@ -201,6 +210,15 @@ function scaleBubble(value: number, maxValue: number) {
   );
 }
 
+function accentForValue(value: number, minValue: number, maxValue: number) {
+  if (!Number.isFinite(value) || maxValue <= minValue) {
+    return `rgba(${ACCENT_RGB}, 1)`;
+  }
+  const t = Math.max(0, Math.min(1, (value - minValue) / (maxValue - minValue)));
+  const alpha = ACCENT_ALPHA_MIN + (1 - ACCENT_ALPHA_MIN) * Math.pow(t, 0.65);
+  return `rgba(${ACCENT_RGB}, ${alpha.toFixed(3)})`;
+}
+
 export default function TradePartnersMap({ tipo, filters }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
@@ -258,7 +276,10 @@ export default function TradePartnersMap({ tipo, filters }: Props) {
       .then((geoJson: GeoJSON) => {
         if (!alive) return;
         mapRef.current = geoJson;
-        echarts.registerMap("world", geoJson);
+        echarts.registerMap(
+          "world",
+          geoJson as Parameters<typeof echarts.registerMap>[1],
+        );
         centroidRef.current = computeCentroids(geoJson);
         setMapReady(true);
       })
@@ -321,7 +342,9 @@ export default function TradePartnersMap({ tipo, filters }: Props) {
     const data: {
       name: string;
       value: [number, number, number];
-      itemStyle: { color: string };
+      itemStyle: {
+        color: string;
+      };
     }[] = [];
 
     for (const it of items) {
@@ -335,7 +358,7 @@ export default function TradePartnersMap({ tipo, filters }: Props) {
         name: it.label,
         value: [coords[0], coords[1], it.value],
         itemStyle: {
-          color: blueStepForValue(it.value, minValue, maxValue, true),
+          color: accentForValue(it.value, minValue, maxValue),
         },
       });
     }
@@ -386,9 +409,22 @@ export default function TradePartnersMap({ tipo, filters }: Props) {
             symbolSize: (val: number[]) => scaleBubble(val[2], maxValue),
             emphasis: {
               itemStyle: {
-                color: BLUE_STEPS[0],
+                color: ACCENT_BLUE,
               },
             },
+          },
+          {
+            type: "effectScatter",
+            coordinateSystem: "geo",
+            data,
+            symbolSize: (val: number[]) => scaleBubble(val[2], maxValue) + 6,
+            rippleEffect: {
+              scale: 1.2,
+              brushType: "stroke",
+              period: 8,
+            },
+            tooltip: { show: false },
+            zlevel: 2,
           },
         ],
       },

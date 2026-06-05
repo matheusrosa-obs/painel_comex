@@ -15,11 +15,16 @@ export function kpis(rows: Row[]) {
   return { exportacoes: exp, importacoes: imp, saldo: exp - imp };
 }
 
-function topNBy<T>(map: Map<string, number>, n: number): { label: string; value: number }[] {
-  return Array.from(map.entries())
-    .map(([label, value]) => ({ label, value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, n);
+function dominantSector(sectors: Map<string, number>): string | null {
+  let best: string | null = null;
+  let bestValue = -Infinity;
+  for (const [sector, value] of sectors) {
+    if (value > bestValue) {
+      best = sector;
+      bestValue = value;
+    }
+  }
+  return best;
 }
 
 export function sectorShare(rows: Row[], tipo: "exp" | "imp", topN = 8) {
@@ -63,13 +68,29 @@ export function topCountries(rows: Row[], tipo: "exp" | "imp", topN?: number) {
 }
 
 export function topProducts(rows: Row[], tipo: "exp" | "imp", topN = 10) {
-  const agg = new Map<string, number>();
+  const agg = new Map<string, { value: number; sectors: Map<string, number> }>();
   for (const r of rows) {
     if (tipoFromCarga(r.tp_carga) !== tipo) continue;
     const key = r.nm_produto || "Não informado";
-    agg.set(key, (agg.get(key) ?? 0) + (Number(r.vl_fob) || 0));
+    const v = Number(r.vl_fob) || 0;
+    const entry = agg.get(key) ?? { value: 0, sectors: new Map<string, number>() };
+    entry.value += v;
+    if (r.nm_sc_competitiva) {
+      entry.sectors.set(
+        r.nm_sc_competitiva,
+        (entry.sectors.get(r.nm_sc_competitiva) ?? 0) + v,
+      );
+    }
+    agg.set(key, entry);
   }
-  return topNBy(agg, topN);
+  return Array.from(agg.entries())
+    .map(([label, entry]) => ({
+      label,
+      value: entry.value,
+      sector: dominantSector(entry.sectors),
+    }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, topN);
 }
 
 export function tradeBalanceSeries(rows: Row[]) {
