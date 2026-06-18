@@ -2,8 +2,7 @@ import Sidebar from "@/components/Sidebar";
 import { KpiCard } from "@/components/KpiCard";
 import { DollarIcon, ExportIcon, ImportIcon } from "@/components/Icons";
 import DashboardGrid from "@/components/DashboardGrid";
-import { loadFiltered, type Filters } from "@/lib/dataset";
-import { kpis, sectorShare } from "@/lib/aggregate";
+import { getCachedKpis, getCachedSectors, type Filters } from "@/lib/dataset";
 import { formatFobUSD } from "@/lib/format";
 
 type RawParams = { [key: string]: string | string[] | undefined };
@@ -52,9 +51,10 @@ export default async function Home({
     produto: produto || undefined,
   };
 
-  const rows = await loadFiltered(filters);
-  const k = kpis(rows);
-  const setores = sectorShare(rows, tipo);
+  const [k, setores] = await Promise.all([
+    getCachedKpis(filters),
+    getCachedSectors(filters, tipo),
+  ]);
 
   const tipoLabel = tipo === "exp" ? "exportações" : "importações";
 
